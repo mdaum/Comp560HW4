@@ -20,6 +20,24 @@ public class placeholder {
 			imageName="images/img_bags_clutch_"+i+".jpg";
 		}*/
 		
+		double[][][] hist=histogram("images/img_bags_clutch_"+101+".jpg");
+		
+		test();
+	}
+	//returns a 8x8x8 triple-array histogram, which is NOT NORMALIZED
+	private static double[][][] histogram(String imageName){
+		double[][][] histogram = new double[8][8][8];
+		try{
+			BufferedImage image = ImageIO.read(new File(imageName));
+			for(int i=0;i<image.getWidth();i++){
+				for(int j=0;j<image.getHeight();j++){
+					Color c = new Color(image.getRGB(i, j));
+					//since these int values range from 0:255, dividing by 32 makes them range from 0:7
+					histogram[c.getRed()/32][c.getGreen()/32][c.getBlue()/32]++;
+				}
+			}
+		}catch(IOException e){}
+		return histogram;
 	}
 	//this is how we turn those 32x32 jpegs into vectors
 	private static int[] rgbVector(String imageName){
@@ -50,8 +68,9 @@ public class placeholder {
 			return null;
 		}
     }
-	//both methods do indeed work; shrinkImage creates a 32x32 version of an image,
-	//and rgbVector is invertible
+	//I'm just using this to test methods. Currently testing only the following:
+	//shrinkImage() creates a 32x32 version of an image
+	//rgbVector() is invertible
 	private static void test(){
 		BufferedImage original = shrinkImage("images/img_bags_clutch_"+101+".jpg");
 		int[] v = rgbVector("images/img_bags_clutch_"+101+".jpg");
