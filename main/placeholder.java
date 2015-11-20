@@ -11,24 +11,37 @@ import javax.imageio.ImageIO;
 public class placeholder {
 
 	public static void main(String[] args){
-		/*System.out.println("hey");
-		ImageTest.ResizeAll();
-		System.out.println("done");*/
+		svm_problem Clutch=new svm_problem();
+		Clutch.l=2759;//actual number of images
+		double[] Clutch_y=new double[2759]; //image label
+		svm_node[][] Clutch_z=new svm_node[2759][3072];
+		int labelcount=0;
+		for(int i=305;i<1000;i++){ //some images are missing, so we just skip over not found images, we know the image numbers of start and end though
+			try{
+			 int [] v=rgbVector("Training/img_bags_clutch_"+i+".jpg");
+			 Clutch_y[labelcount]=1;//yes it is...
+			 for (int j=0;j<v.length;j++){
+				 svm_node toput=new svm_node();
+				 toput.index=j;
+				 toput.value=v[j];
+				 Clutch_z[labelcount][j]=toput;
+			 }
+			 labelcount++;//increment at end!
+			 
+			}
+			catch(Exception e){
+				continue;
+			}
+		}
 		
-		/*String imageName="";
-		for(int i=1;i<1000;i++){//the images range from 1-999
-			imageName="images/img_bags_clutch_"+i+".jpg";
-		}*/
 		
-		double[][][] hist=histogram("images/img_bags_clutch_"+101+".jpg");
-		
-		test();
 	}
 	//returns a 8x8x8 triple-array histogram, which is NOT NORMALIZED
 	private static double[][][] histogram(String imageName){
 		double[][][] histogram = new double[8][8][8];
 		try{
 			BufferedImage image = ImageIO.read(new File(imageName));
+			double imageSize=image.getHeight()*image.getWidth();
 			for(int i=0;i<image.getWidth();i++){
 				for(int j=0;j<image.getHeight();j++){
 					Color c = new Color(image.getRGB(i, j));
@@ -36,11 +49,20 @@ public class placeholder {
 					histogram[c.getRed()/32][c.getGreen()/32][c.getBlue()/32]++;
 				}
 			}
+			for (double[][] ds : histogram) {
+				for (double[] ds2 : ds) {
+					for(int i=0;i<8;i++){
+						ds2[i]=ds2[i]/imageSize;
+					}
+					
+				}
+				
+			}
 		}catch(IOException e){}
 		return histogram;
 	}
 	//this is how we turn those 32x32 jpegs into vectors
-	private static int[] rgbVector(String imageName){
+	private static int[] rgbVector(String imageName)throws Exception{
 		BufferedImage small = shrinkImage(imageName);
 		int[] smallRGBVector = new int[32*32*3];
 		for(int i=0;i<32;i++){
