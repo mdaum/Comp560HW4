@@ -11,20 +11,39 @@ import javax.imageio.ImageIO;
 public class placeholder {
 
 	public static void main(String[] args){
+		System.out.println("Constructing svm problem(s)");
 		svm_problem Clutch=new svm_problem();
 		Clutch.l=2759;//actual number of images
 		double[] Clutch_y=new double[2759]; //image label
 		svm_node[][] Clutch_z=new svm_node[2759][3072];
+		svm_problem Hobo=new svm_problem();
+		Hobo.l=2759;
+		double[] Hobo_y=new double[2759];
+		svm_node[][] Hobo_z=new svm_node[2759][3072];
+		svm_problem Flats=new svm_problem();
+		Flats.l=2759;
+		double[] Flats_y=new double[2759];
+		svm_node[][]Flats_z=new svm_node[2759][3072];
+		svm_problem Pumps=new svm_problem();
+		Pumps.l=2759;
+		double[] Pumps_y=new double[2759];
+		svm_node[][]Pumps_z=new svm_node[2759][3072];
 		int labelcount=0;
 		for(int i=305;i<1000;i++){ //some images are missing, so we just skip over not found images, we know the image numbers of start and end though
 			try{
 			 int [] v=rgbVector("Training/img_bags_clutch_"+i+".jpg");
-			 Clutch_y[labelcount]=1;//yes it is...
+			 Clutch_y[labelcount]=1;//yes it is
+			 Hobo_y[labelcount]=0;
+			 Flats_y[labelcount]=0;
+			 Pumps_y[labelcount]=0;
 			 for (int j=0;j<v.length;j++){
 				 svm_node toput=new svm_node();
 				 toput.index=j;
 				 toput.value=v[j];
 				 Clutch_z[labelcount][j]=toput;
+				 Hobo_z[labelcount][j]=toput;
+				 Flats_z[labelcount][j]=toput;
+				 Pumps_z[labelcount][j]=toput;
 			 }
 			 labelcount++;//increment at end!
 			 
@@ -33,7 +52,107 @@ public class placeholder {
 				continue;
 			}
 		}
-		
+		for(int i=85;i<782;i++){ //some images are missing, so we just skip over not found images, we know the image numbers of start and end though
+			try{
+			 int [] v=rgbVector("Training/img_bags_hobo_"+i+".jpg");
+			 Clutch_y[labelcount]=0;
+			 Hobo_y[labelcount]=1;//yes it is
+			 Flats_y[labelcount]=0;
+			 Pumps_y[labelcount]=0;
+			 for (int j=0;j<v.length;j++){
+				 svm_node toput=new svm_node();
+				 toput.index=j;
+				 toput.value=v[j];
+				 Clutch_z[labelcount][j]=toput;
+				 Hobo_z[labelcount][j]=toput;
+				 Flats_z[labelcount][j]=toput;
+				 Pumps_z[labelcount][j]=toput;
+			 }
+			 labelcount++;//increment at end!
+			 
+			}
+			catch(Exception e){
+				continue;
+			}
+		}
+		for(int i=299;i<996;i++){ //some images are missing, so we just skip over not found images, we know the image numbers of start and end though
+			try{
+			 int [] v=rgbVector("Training/img_womens_flats_"+i+".jpg");
+			 Clutch_y[labelcount]=0;
+			 Hobo_y[labelcount]=0;
+			 Flats_y[labelcount]=1;//yes it is
+			 Pumps_y[labelcount]=0;
+			 for (int j=0;j<v.length;j++){
+				 svm_node toput=new svm_node();
+				 toput.index=j;
+				 toput.value=v[j];
+				 Clutch_z[labelcount][j]=toput;
+				 Hobo_z[labelcount][j]=toput;
+				 Flats_z[labelcount][j]=toput;
+				 Pumps_z[labelcount][j]=toput;
+			 }
+			 labelcount++;//increment at end!
+			 
+			}
+			catch(Exception e){
+				continue;
+			}
+		}
+		for(int i=48;i<745;i++){ //some images are missing, so we just skip over not found images, we know the image numbers of start and end though
+			try{
+			 int [] v=rgbVector("Training/img_womens_pumps_"+i+".jpg");
+			 Clutch_y[labelcount]=0;
+			 Hobo_y[labelcount]=0;
+			 Flats_y[labelcount]=0;
+			 Pumps_y[labelcount]=1;//yes it is
+			 for (int j=0;j<v.length;j++){
+				 svm_node toput=new svm_node();
+				 toput.index=j;
+				 toput.value=v[j];
+				 Clutch_z[labelcount][j]=toput;
+				 Hobo_z[labelcount][j]=toput;
+				 Flats_z[labelcount][j]=toput;
+				 Pumps_z[labelcount][j]=toput;
+			 }
+			 labelcount++;//increment at end!
+			 
+			}
+			catch(Exception e){
+				continue;
+			}
+		}
+		Clutch.y=Clutch_y;
+		Clutch.x=Clutch_z; //oops
+		Hobo.y=Hobo_y;
+		Hobo.x=Hobo_z;
+		Flats.y=Flats_y;
+		Flats.x=Flats_z;
+		Pumps.y=Pumps_y;
+		Pumps.x=Pumps_z;
+		System.out.println("Done. Teaching svm(s)");
+		svm_parameter param=new svm_parameter();
+		param.kernel_type=0;//linear kernel;
+		//param.cache_size=1000;
+		//System.out.println(svm.svm_check_parameter(Clutch, param));
+		System.out.println(Clutch.l);
+		System.out.println(Clutch.y.length);
+		svm_model trainedClutch=svm.svm_train(Clutch,param);
+		try {
+			int[]testImageClutch=rgbVector("Testing/img_bags_clutch_6.jpg");
+			svm_node[] goo=new svm_node[3072];
+			for(int i=0;i<testImageClutch.length;i++){
+				svm_node toput=new svm_node();
+				toput.index=i;
+				toput.value=testImageClutch[i];
+				goo[i]=toput;
+			}
+			System.out.println("ready to predict");
+			System.out.println(svm.svm_predict(trainedClutch,goo));//0.0 on known clutch? uh-oh.... TODO Figure this out!!!
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		System.out.println("Done.");
 		
 	}
 	//returns a 8x8x8 triple-array histogram, which is NOT NORMALIZED
@@ -93,7 +212,7 @@ public class placeholder {
 	//I'm just using this to test methods. Currently testing only the following:
 	//shrinkImage() creates a 32x32 version of an image
 	//rgbVector() is invertible
-	private static void test(){
+	private static void test() throws Exception{
 		BufferedImage original = shrinkImage("images/img_bags_clutch_"+101+".jpg");
 		int[] v = rgbVector("images/img_bags_clutch_"+101+".jpg");
 		BufferedImage recreation = new BufferedImage(32,32,BufferedImage.TYPE_INT_RGB);
