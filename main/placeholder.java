@@ -5,6 +5,7 @@ import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 
 import javax.imageio.ImageIO;
 
@@ -131,14 +132,28 @@ public class placeholder {
 		Pumps.x=Pumps_z;
 		System.out.println("Done. Teaching svm(s)");
 		svm_parameter param=new svm_parameter();
-		param.kernel_type=0;//linear kernel;
-		//param.cache_size=1000;
-		//System.out.println(svm.svm_check_parameter(Clutch, param));
-		System.out.println(Clutch.l);
-		System.out.println(Clutch.y.length);
+		param.probability = 1;
+	    param.gamma = 0.5;
+	    param.nu = 0.5;
+	    param.C = 1;
+	    param.svm_type = svm_parameter.C_SVC;
+	    param.kernel_type = svm_parameter.LINEAR;       
+	    param.cache_size = 20000;
+	    param.eps = 0.001;   
 		svm_model trainedClutch=svm.svm_train(Clutch,param);
+		System.out.println("Trained Clutch");
+		svm_model trainedHobo=svm.svm_train(Hobo, param);
+		System.out.println("Trained Hobo");
+		svm_model trainedFlats=svm.svm_train(Flats, param);
+		System.out.println("Trained Flats");
+		svm_model trainedPumps=svm.svm_train(Pumps,param);
+		System.out.println("Trained Pumps");
+		
+		ArrayList<Decision>decisions=new ArrayList<Decision>(); 
+		int numInteresting=0;
+		for(int j=2;j<305;j++){ //looking at testing/clutch stuff first
 		try {
-			int[]testImageClutch=rgbVector("Testing/img_bags_clutch_6.jpg");
+			int[]testImageClutch=rgbVector("Testing/img_bags_clutch_"+j+".jpg");
 			svm_node[] goo=new svm_node[3072];
 			for(int i=0;i<testImageClutch.length;i++){
 				svm_node toput=new svm_node();
@@ -146,13 +161,28 @@ public class placeholder {
 				toput.value=testImageClutch[i];
 				goo[i]=toput;
 			}
-			System.out.println("ready to predict");
-			System.out.println(svm.svm_predict(trainedClutch,goo));//0.0 on known clutch? uh-oh.... TODO Figure this out!!!
-		} catch (Exception e) {
+			double[] clutchProbs=new double[2];
+			double clutchResult=svm.svm_predict_probability(trainedClutch,goo,clutchProbs);
+			double[] hoboProbs=new double[2];
+			double hoboResult=svm.svm_predict_probability(trainedHobo,goo,hoboProbs);
+			double[] FlatsProbs=new double[2];
+			double FlatsResult=svm.svm_predict_probability(trainedFlats,goo,FlatsProbs);
+			double[] PumpsProbs=new double[2];
+			double PumpsResult=svm.svm_predict_probability(trainedPumps,goo,PumpsProbs);
+			Decision d = new Decision(clutchProbs,clutchResult,hoboProbs,hoboResult,FlatsProbs,FlatsResult,PumpsProbs,PumpsResult,"Testing/img_bags_clutch_"+j+".jpg");
+			d.makeDecision();
+			decisions.add(d);
+			if(d.interesting)numInteresting++;
+		 }catch (Exception e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			continue;
 		}
-		System.out.println("Done.");
+		}
+		System.out.println("Done with Clutch: num interesting="+numInteresting);
+		for (Decision decision : decisions) {
+			if(decision.interesting)System.out.println(""+decision.filepath+": classified as "+decision.classDecision);
+		}
+		
 		
 	}
 	//returns a 8x8x8 triple-array histogram, which is NOT NORMALIZED
