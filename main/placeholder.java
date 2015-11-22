@@ -9,137 +9,46 @@ import java.util.ArrayList;
 
 import javax.imageio.ImageIO;
 
-public class placeholder {
-
+public class placeholder {   
+	
+	static int labelcount=0; //Number of actual labels
+	
 	public static void main(String[] args){
+		
+		int numTrainingItems = 2759; //number of training images
+		int vectorLength = 3072; //length of vector representation of image
+		int histogramLength = 512; //length of histogram representation of images (8x8x8?)
+		
+		//Parameters for SVM
+		int probability = 1;
+	    double gamma = 0.5;
+	    double nu = 0.5;
+	    double C = 1;
+	    int svm_type = svm_parameter.C_SVC;
+	    int kernel_type = svm_parameter.LINEAR;       
+	    double cache_size = 20000;
+	    double eps = 0.001;
+		
+		
+		//Initialization of SVM problems for each class, for the vector representation
 		System.out.println("Constructing svm problem(s)");
-		svm_problem Clutch=new svm_problem();
-		Clutch.l=2759;//actual number of images
-		double[] Clutch_y=new double[2759]; //image label
-		svm_node[][] Clutch_z=new svm_node[2759][3072];
-		svm_problem Hobo=new svm_problem();
-		Hobo.l=2759;
-		double[] Hobo_y=new double[2759];
-		svm_node[][] Hobo_z=new svm_node[2759][3072];
-		svm_problem Flats=new svm_problem();
-		Flats.l=2759;
-		double[] Flats_y=new double[2759];
-		svm_node[][]Flats_z=new svm_node[2759][3072];
-		svm_problem Pumps=new svm_problem();
-		Pumps.l=2759;
-		double[] Pumps_y=new double[2759];
-		svm_node[][]Pumps_z=new svm_node[2759][3072];
-		int labelcount=0;
-		for(int i=305;i<1000;i++){ //some images are missing, so we just skip over not found images, we know the image numbers of start and end though
-			try{
-			 int [] v=rgbVector("Training/img_bags_clutch_"+i+".jpg");
-			 Clutch_y[labelcount]=1;//yes it is
-			 Hobo_y[labelcount]=0;
-			 Flats_y[labelcount]=0;
-			 Pumps_y[labelcount]=0;
-			 for (int j=0;j<v.length;j++){
-				 svm_node toput=new svm_node();
-				 toput.index=j;
-				 toput.value=v[j];
-				 Clutch_z[labelcount][j]=toput;
-				 Hobo_z[labelcount][j]=toput;
-				 Flats_z[labelcount][j]=toput;
-				 Pumps_z[labelcount][j]=toput;
-			 }
-			 labelcount++;//increment at end!
-			 
-			}
-			catch(Exception e){
-				continue;
-			}
-		}
-		for(int i=85;i<782;i++){ //some images are missing, so we just skip over not found images, we know the image numbers of start and end though
-			try{
-			 int [] v=rgbVector("Training/img_bags_hobo_"+i+".jpg");
-			 Clutch_y[labelcount]=0;
-			 Hobo_y[labelcount]=1;//yes it is
-			 Flats_y[labelcount]=0;
-			 Pumps_y[labelcount]=0;
-			 for (int j=0;j<v.length;j++){
-				 svm_node toput=new svm_node();
-				 toput.index=j;
-				 toput.value=v[j];
-				 Clutch_z[labelcount][j]=toput;
-				 Hobo_z[labelcount][j]=toput;
-				 Flats_z[labelcount][j]=toput;
-				 Pumps_z[labelcount][j]=toput;
-			 }
-			 labelcount++;//increment at end!
-			 
-			}
-			catch(Exception e){
-				continue;
-			}
-		}
-		for(int i=299;i<996;i++){ //some images are missing, so we just skip over not found images, we know the image numbers of start and end though
-			try{
-			 int [] v=rgbVector("Training/img_womens_flats_"+i+".jpg");
-			 Clutch_y[labelcount]=0;
-			 Hobo_y[labelcount]=0;
-			 Flats_y[labelcount]=1;//yes it is
-			 Pumps_y[labelcount]=0;
-			 for (int j=0;j<v.length;j++){
-				 svm_node toput=new svm_node();
-				 toput.index=j;
-				 toput.value=v[j];
-				 Clutch_z[labelcount][j]=toput;
-				 Hobo_z[labelcount][j]=toput;
-				 Flats_z[labelcount][j]=toput;
-				 Pumps_z[labelcount][j]=toput;
-			 }
-			 labelcount++;//increment at end!
-			 
-			}
-			catch(Exception e){
-				continue;
-			}
-		}
-		for(int i=48;i<745;i++){ //some images are missing, so we just skip over not found images, we know the image numbers of start and end though
-			try{
-			 int [] v=rgbVector("Training/img_womens_pumps_"+i+".jpg");
-			 Clutch_y[labelcount]=0;
-			 Hobo_y[labelcount]=0;
-			 Flats_y[labelcount]=0;
-			 Pumps_y[labelcount]=1;//yes it is
-			 for (int j=0;j<v.length;j++){
-				 svm_node toput=new svm_node();
-				 toput.index=j;
-				 toput.value=v[j];
-				 Clutch_z[labelcount][j]=toput;
-				 Hobo_z[labelcount][j]=toput;
-				 Flats_z[labelcount][j]=toput;
-				 Pumps_z[labelcount][j]=toput;
-			 }
-			 labelcount++;//increment at end!
-			 
-			}
-			catch(Exception e){
-				continue;
-			}
-		}
-		Clutch.y=Clutch_y;
-		Clutch.x=Clutch_z; //oops
-		Hobo.y=Hobo_y;
-		Hobo.x=Hobo_z;
-		Flats.y=Flats_y;
-		Flats.x=Flats_z;
-		Pumps.y=Pumps_y;
-		Pumps.x=Pumps_z;
+		svm_problem Clutch = constructProblem(numTrainingItems, vectorLength);
+		svm_problem Hobo = constructProblem(numTrainingItems, vectorLength);
+		svm_problem Flats = constructProblem(numTrainingItems, vectorLength);
+		svm_problem Pumps = constructProblem(numTrainingItems, vectorLength);
+
+
+		//populate each of the svm_problem variables with data
+		fillTrainingArrays(Clutch, Hobo, Flats, Pumps, "bags_clutch", 305, 1000);
+		fillTrainingArrays(Clutch, Hobo, Flats, Pumps, "bags_hobo", 85, 782);
+		fillTrainingArrays(Clutch, Hobo, Flats, Pumps, "womens_flats", 299, 966);
+		fillTrainingArrays(Clutch, Hobo, Flats, Pumps, "womens_pumps", 48, 745);		 
 		System.out.println("Done. Teaching svm(s)");
-		svm_parameter param=new svm_parameter();
-		param.probability = 1;
-	    param.gamma = 0.5;
-	    param.nu = 0.5;
-	    param.C = 1;
-	    param.svm_type = svm_parameter.C_SVC;
-	    param.kernel_type = svm_parameter.LINEAR;       
-	    param.cache_size = 20000;
-	    param.eps = 0.001;   
+		
+		//Build the svm_paramater object
+		svm_parameter param = constructParameter(probability, gamma, nu, C, svm_type, kernel_type, cache_size, eps);
+		
+		//Train the scm_problems and produce svm_models for each class
 		svm_model trainedClutch=svm.svm_train(Clutch,param);
 		System.out.println("Trained Clutch");
 		svm_model trainedHobo=svm.svm_train(Hobo, param);
@@ -149,6 +58,7 @@ public class placeholder {
 		svm_model trainedPumps=svm.svm_train(Pumps,param);
 		System.out.println("Trained Pumps");
 		
+		//Test the model for each class
 		ArrayList<Decision>decisions=new ArrayList<Decision>(); 
 		int numInteresting=0;
 		for(int j=2;j<305;j++){ //looking at testing/clutch stuff first
@@ -174,7 +84,6 @@ public class placeholder {
 			decisions.add(d);
 			if(d.interesting)numInteresting++;
 		 }catch (Exception e) {
-			// TODO Auto-generated catch block
 			continue;
 		}
 		}
@@ -263,4 +172,65 @@ public class placeholder {
 			ImageIO.write(recreation,"jpg",new File("a2.jpg"));
 		}catch(IOException e){}
 	}
+	
+	//Constructs an svm_problem with the given arguments
+	private static svm_problem constructProblem(int numTrainingItems, int lengthOfItems)
+	{
+		svm_problem problem=new svm_problem();
+		problem.l = numTrainingItems;
+		problem.y = new double[numTrainingItems];
+		problem.x = new svm_node[numTrainingItems][lengthOfItems];
+		return problem;
+	}
+	
+	//Constructs an svm_parameter with the given arguments
+	private static svm_parameter constructParameter(int probability, double gamma, double nu, double C, int svm_type, int kernel_type, 
+													double cache_size, double eps)
+	{
+		svm_parameter param = new svm_parameter();
+		param.probability = probability;
+	    param.gamma = gamma;
+	    param.nu = nu;
+	    param.C = C;
+	    param.svm_type = svm_type;
+	    param.kernel_type = kernel_type;       
+	    param.cache_size = cache_size;
+	    param.eps = eps;
+	    
+	    return param;
+	}
+			
+			                                        
+			                              
+	//fills the arrays of the svm_problem objects to prep them for training
+	private static void fillTrainingArrays(svm_problem Clutch, svm_problem Hobo, svm_problem Flats, svm_problem Pumps, String filePrefix,
+										  int lowerBound, int upperBound)
+	{
+		//some images are missing, so we just skip over not found images, we know the image numbers of start and end though
+		for(int i=lowerBound;i<upperBound;i++){ 
+			try{
+			 int [] v=rgbVector("Training/img_" + filePrefix +"_"+i+".jpg");
+			 Clutch.y[labelcount] = filePrefix.contains("clutch") ? 1 : 0;
+			 Hobo.y[labelcount] = filePrefix.contains("hobo") ? 1 : 0;
+			 Flats.y[labelcount] = filePrefix.contains("flats") ? 1 : 0;
+			 Pumps.y[labelcount] = filePrefix.contains("pumps") ? 1 : 0;
+			 
+			 for (int j=0;j<v.length;j++){
+				 svm_node toput=new svm_node();
+				 toput.index=j;
+				 toput.value=v[j];
+				 Clutch.x[labelcount][j]=toput;
+				 Hobo.x[labelcount][j]=toput;
+				 Flats.x[labelcount][j]=toput;
+				 Pumps.x[labelcount][j]=toput;
+			 }
+			 labelcount++;//increment at end!
+			 
+			}
+			catch(Exception e){
+				continue;
+			}
+		}
+	}
+	
 }

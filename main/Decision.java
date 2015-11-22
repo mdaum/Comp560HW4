@@ -7,48 +7,42 @@ public class Decision {
 	double clutchResult;
 	double[] hoboProbs;
 	double hoboResult;
-	double[] FlatsProbs;
-	double FlatsResult;
-	double[] PumpsProbs;
-	double PumpsResult;
+	double[] flatsProbs;
+	double flatsResult;
+	double[] pumpsProbs;
+	double pumpsResult;
 	boolean interesting;
 
 	public Decision(double[] clutchProbs, double clutchResult,
-			double[] hoboProbs, double hoboResult, double[] FlatsProbs,
-			double FlatsResult, double[] PumpsProbs, double PumpsResult,
+			double[] hoboProbs, double hoboResult, double[] flatsProbs,
+			double flatsResult, double[] pumpsProbs, double pumpsResult,
 			String filepath) {
 		this.clutchProbs=clutchProbs;
 		this.clutchResult=clutchResult;
 		this.hoboProbs=hoboProbs;
 		this.hoboResult=hoboResult;
-		this.FlatsProbs=FlatsProbs;
-		this.FlatsResult=FlatsResult;
-		this.PumpsProbs=PumpsProbs;
-		this.PumpsResult=PumpsResult;
+		this.flatsProbs=flatsProbs;
+		this.flatsResult=flatsResult;
+		this.pumpsProbs=pumpsProbs;
+		this.pumpsResult=pumpsResult;
 		this.filepath=filepath;
 		this.interesting=false;
 	}
+	//Decides which class is most likely to match the test image, using the four class models
 	public void makeDecision(){
-		double probClutch;
-		if(clutchResult==1)probClutch=Math.max(clutchProbs[0], clutchProbs[1]);
-		else probClutch=Math.min(clutchProbs[0], clutchProbs[1]);
-		double probHobo;
-		if(hoboResult==1)probHobo=Math.max(hoboProbs[0], hoboProbs[1]);
-		else probHobo=Math.min(hoboProbs[0], hoboProbs[1]);
-		double probFlats;
-		if(FlatsResult==1)probFlats=Math.max(FlatsProbs[0], FlatsProbs[1]);
-		else probFlats=Math.min(FlatsProbs[0], FlatsProbs[1]);
-		double probPumps;
-		if(PumpsResult==1)probPumps=Math.max(PumpsProbs[0], PumpsProbs[1]);
-		else probPumps=Math.min(PumpsProbs[0], PumpsProbs[1]);
-		double max1=Math.max(probClutch,probHobo);
-		if(max1==probClutch)classDecision="clutch";
-		else classDecision="hobo";
+		double probClutch = (clutchResult == 1) ? Math.max(clutchProbs[0], clutchProbs[1]) : Math.min(clutchProbs[0], clutchProbs[1]);
+		double probHobo = (hoboResult == 1) ? Math.max(hoboProbs[0], hoboProbs[1]) : Math.min(hoboProbs[0], hoboProbs[1]);
+		double probFlats = (flatsResult == 1) ? Math.max(flatsProbs[0], flatsProbs[1]) : Math.min(flatsProbs[0], flatsProbs[1]);
+		double probPumps = (pumpsResult == 1) ? Math.max(pumpsProbs[0], pumpsProbs[1]) : Math.min(pumpsProbs[0], pumpsProbs[1]);
+		
+		double max1 = Math.max(probClutch,probHobo);
+		classDecision = (max1 == probClutch) ? "clutch" : "hobo";
+
 		double max2=Math.max(probPumps, probFlats);
-		String contender;
-		if(max2==probFlats)contender="flats";
-		else contender="pumps";
+		String contender = (max2 == probFlats) ? "flats" : "pumps";
+		
 		if(max2>max1)classDecision=contender;
+		
 		if(!(filepath.contains(classDecision)))interesting=true;
 	}
 }
