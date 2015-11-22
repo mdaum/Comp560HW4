@@ -41,14 +41,15 @@ public class placeholder {
 		//populate each of the svm_problem variables with data
 		fillTrainingArrays(Clutch, Hobo, Flats, Pumps, "bags_clutch", 305, 1000);
 		fillTrainingArrays(Clutch, Hobo, Flats, Pumps, "bags_hobo", 85, 782);
-		fillTrainingArrays(Clutch, Hobo, Flats, Pumps, "womens_flats", 299, 966);
+		fillTrainingArrays(Clutch, Hobo, Flats, Pumps, "womens_flats", 299, 996);
 		fillTrainingArrays(Clutch, Hobo, Flats, Pumps, "womens_pumps", 48, 745);		 
 		System.out.println("Done. Teaching svm(s)");
 		
 		//Build the svm_paramater object
 		svm_parameter param = constructParameter(probability, gamma, nu, C, svm_type, kernel_type, cache_size, eps);
 		
-		//Train the scm_problems and produce svm_models for each class
+		
+		//Train the svm_problems and produce svm_models for each class
 		svm_model trainedClutch=svm.svm_train(Clutch,param);
 		System.out.println("Trained Clutch");
 		svm_model trainedHobo=svm.svm_train(Hobo, param);
