@@ -51,7 +51,7 @@ public class placeholder {
 	    double nu = 0.5;
 	    double C = .0001;
 	    int svm_type = svm_parameter.C_SVC;
-	    int kernel_type = svm_parameter.LINEAR;       
+	    int kernel_type = (isLinear) ? svm_parameter.LINEAR : svm_parameter.RBF;       
 	    double cache_size = 20000;
 	    double eps = 0.001;
 		
