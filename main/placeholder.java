@@ -9,14 +9,29 @@ import java.util.ArrayList;
 
 import javax.imageio.ImageIO;
 
+
+//Max C value for linear kernel is 100,000 
+/*Output for linear kernel parameter run on RGB vectors
+ * The max accuracy is 0.836350470673425
+Achieved with our little child 100000.0
+0.832729905865315
+0.832729905865315
+0.833454018826937
+0.834178131788559
+0.832729905865315
+0.835626357711803
+0.834178131788559
+0.833454018826937
+0.836350470673425
+ */
 public class placeholder {   
 	
 	static int labelcount=0; //Number of actual labels 
 	static int numInteresting=0;
 	
 	public static void main(String[] args){
-		boolean isHistogram = false;
-		boolean isLinear = true;
+		boolean isHistogram = true; //boolean representing whether we are using a histogram or not
+		boolean isLinear = true; //boolean representing whether we are using a linear kernel
 		
 		int numTrainingItems = 1380; //number of training images, old is 2759
 		int vectorLength;
@@ -32,7 +47,7 @@ public class placeholder {
 		
 		//Parameters for SVM
 		int probability = 1;
-	    double gamma = 0.5;
+	    double gamma = 0;
 	    double nu = 0.5;
 	    double C = .0001;
 	    int svm_type = svm_parameter.C_SVC;
@@ -68,12 +83,16 @@ public class placeholder {
 		
 		double maxAccuracy = 0;
 		double maxC = C;
-		double[] valuesForEachC = new double[10];
+		double maxG = gamma;
+		double[][] valuesForEachCAndG = new double[10][11];
+		int indexC = 0;
+		int indexG = 0;
 		
-		int index = 0;
-		
+		int k;
 		for(C = .0001;C < 100000;C*=10)
 		{
+			for(gamma = 0; gamma <= 1;gamma += .1 )
+			{
 			//Build the svm_paramater object
 			svm_parameter param = constructParameter(probability, gamma, nu, C, svm_type, kernel_type, cache_size, eps);
 			
@@ -99,27 +118,35 @@ public class placeholder {
 			for (Decision decision : decisions) {
 				if(decision.interesting)System.out.println(""+decision.filepath+": classified as "+decision.classDecision);
 			}
-			double accuracy = 1-((double)numInteresting)/(double)1381;
+			double accuracy = 1-((double)numInteresting)/(double)1381; //Denominator is number of "testing" documents for tuning (half of training)
 			if(accuracy > maxAccuracy)
 			{
 				maxAccuracy = accuracy;
 				maxC = C;
+				maxG = gamma;
 			}
-			valuesForEachC[index] = accuracy;
-			index++;
+			valuesForEachCAndG[indexC][indexG] = accuracy;
+			indexG++;
+			numInteresting = 0;
 			}
+			indexC++;
+		}
 		
 		System.out.println("The max accuracy is " + maxAccuracy);
 		System.out.println("Achieved with our little child " + C);
-		for(double value : valuesForEachC)
+		for(int n = 0;n < valuesForEachCAndG.length;n++)
 		{
-			System.out.println(value);
+			for(int m = 0;m < valuesForEachCAndG[0].length;m++)
+			{
+				System.out.println(valuesForEachCAndG[n][m]);
+			}
 		}
+		
 			
 		}
 	
 	
-	//returns a 8x8x8 triple-array histogram, which is NOT NORMALIZED
+	//returns a 8x8x8 triple-array histogram
 	private static double[][][] histogram(String imageName){
 		double[][][] histogram = new double[8][8][8];
 		try{
