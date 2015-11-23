@@ -11,24 +11,34 @@ import javax.imageio.ImageIO;
 
 public class placeholder {   
 	
-	static int labelcount=0; //Number of actual labels
+	static int labelcount=0; //Number of actual labels 
+	static int numInteresting=0;
 	
 	public static void main(String[] args){
+		boolean isHistogram = false;
+		boolean isLinear = true;
 		
-		int numTrainingItems = 2759; //number of training images
-		int vectorLength = 3072; //length of vector representation of image
-		int histogramLength = 512; //length of histogram representation of images (8x8x8?)
+		int numTrainingItems = 1380; //number of training images, old is 2759
+		int vectorLength;
+		if(!isHistogram)
+		{
+			vectorLength = 3072; //length of vector representation of image
+		}
+		else
+		{
+			vectorLength = 512; //length of histogram representation of images (8x8x8?)
+		}
+		
 		
 		//Parameters for SVM
 		int probability = 1;
 	    double gamma = 0.5;
 	    double nu = 0.5;
-	    double C = 1;
+	    double C = .0001;
 	    int svm_type = svm_parameter.C_SVC;
 	    int kernel_type = svm_parameter.LINEAR;       
 	    double cache_size = 20000;
 	    double eps = 0.001;
-		
 		
 		//Initialization of SVM problems for each class, for the vector representation
 		System.out.println("Constructing svm problem(s)");
@@ -39,62 +49,76 @@ public class placeholder {
 
 
 		//populate each of the svm_problem variables with data
-		fillTrainingArrays(Clutch, Hobo, Flats, Pumps, "bags_clutch", 305, 1000);
-		fillTrainingArrays(Clutch, Hobo, Flats, Pumps, "bags_hobo", 85, 782);
-		fillTrainingArrays(Clutch, Hobo, Flats, Pumps, "womens_flats", 299, 996);
-		fillTrainingArrays(Clutch, Hobo, Flats, Pumps, "womens_pumps", 48, 745);		 
+		//1000,782,996,745
+		//346
+		int oldLabels = 0;
+		fillTrainingArrays(Clutch, Hobo, Flats, Pumps, "bags_clutch", 305, 653, isHistogram);
+		System.out.println(labelcount - oldLabels);
+		oldLabels = labelcount;
+		fillTrainingArrays(Clutch, Hobo, Flats, Pumps, "bags_hobo", 85, 434, isHistogram);
+		System.out.println(labelcount - oldLabels);
+		oldLabels = labelcount;
+		fillTrainingArrays(Clutch, Hobo, Flats, Pumps, "womens_flats", 299, 648, isHistogram);
+		System.out.println(labelcount - oldLabels);
+		oldLabels = labelcount;
+		fillTrainingArrays(Clutch, Hobo, Flats, Pumps, "womens_pumps", 48, 396, isHistogram);	
+		System.out.println(labelcount - oldLabels);
+		oldLabels = labelcount;
 		System.out.println("Done. Teaching svm(s)");
 		
-		//Build the svm_paramater object
-		svm_parameter param = constructParameter(probability, gamma, nu, C, svm_type, kernel_type, cache_size, eps);
+		double maxAccuracy = 0;
+		double maxC = C;
+		double[] valuesForEachC = new double[10];
 		
+		int index = 0;
 		
-		//Train the svm_problems and produce svm_models for each class
-		svm_model trainedClutch=svm.svm_train(Clutch,param);
-		System.out.println("Trained Clutch");
-		svm_model trainedHobo=svm.svm_train(Hobo, param);
-		System.out.println("Trained Hobo");
-		svm_model trainedFlats=svm.svm_train(Flats, param);
-		System.out.println("Trained Flats");
-		svm_model trainedPumps=svm.svm_train(Pumps,param);
-		System.out.println("Trained Pumps");
-		
-		//Test the model for each class
-		ArrayList<Decision>decisions=new ArrayList<Decision>(); 
-		int numInteresting=0;
-		for(int j=2;j<305;j++){ //looking at testing/clutch stuff first
-		try {
-			int[]testImageClutch=rgbVector("Testing/img_bags_clutch_"+j+".jpg");
-			svm_node[] goo=new svm_node[3072];
-			for(int i=0;i<testImageClutch.length;i++){
-				svm_node toput=new svm_node();
-				toput.index=i;
-				toput.value=testImageClutch[i];
-				goo[i]=toput;
+		for(C = .0001;C < 100000;C*=10)
+		{
+			//Build the svm_paramater object
+			svm_parameter param = constructParameter(probability, gamma, nu, C, svm_type, kernel_type, cache_size, eps);
+			
+			
+			//Train the svm_problems and produce svm_models for each class
+			svm_model trainedClutch=svm.svm_train(Clutch,param);
+			System.out.println("Trained Clutch");
+			svm_model trainedHobo=svm.svm_train(Hobo, param);
+			System.out.println("Trained Hobo");
+			svm_model trainedFlats=svm.svm_train(Flats, param);
+			System.out.println("Trained Flats");
+			svm_model trainedPumps=svm.svm_train(Pumps,param);
+			System.out.println("Trained Pumps");
+			
+			//Test the model for each class
+			ArrayList<Decision>decisions=new ArrayList<Decision>(); 
+			//1000,782,996,745
+			evaluateClass(trainedClutch, trainedHobo, trainedFlats, trainedPumps, "bags_clutch", "Training", 653, 1000, decisions, isHistogram);
+			evaluateClass(trainedClutch, trainedHobo, trainedFlats, trainedPumps, "bags_hobo", "Training", 434, 782, decisions, isHistogram);
+			evaluateClass(trainedClutch, trainedHobo, trainedFlats, trainedPumps, "womens_flats", "Training", 648, 996, decisions, isHistogram);
+			evaluateClass(trainedClutch, trainedHobo, trainedFlats, trainedPumps, "womens_pumps", "Training", 397, 745, decisions, isHistogram);
+			System.out.println("Done with Testing: num interesting="+numInteresting);
+			for (Decision decision : decisions) {
+				if(decision.interesting)System.out.println(""+decision.filepath+": classified as "+decision.classDecision);
 			}
-			double[] clutchProbs=new double[2];
-			double clutchResult=svm.svm_predict_probability(trainedClutch,goo,clutchProbs);
-			double[] hoboProbs=new double[2];
-			double hoboResult=svm.svm_predict_probability(trainedHobo,goo,hoboProbs);
-			double[] FlatsProbs=new double[2];
-			double FlatsResult=svm.svm_predict_probability(trainedFlats,goo,FlatsProbs);
-			double[] PumpsProbs=new double[2];
-			double PumpsResult=svm.svm_predict_probability(trainedPumps,goo,PumpsProbs);
-			Decision d = new Decision(clutchProbs,clutchResult,hoboProbs,hoboResult,FlatsProbs,FlatsResult,PumpsProbs,PumpsResult,"Testing/img_bags_clutch_"+j+".jpg");
-			d.makeDecision();
-			decisions.add(d);
-			if(d.interesting)numInteresting++;
-		 }catch (Exception e) {
-			continue;
-		}
-		}
-		System.out.println("Done with Clutch: num interesting="+numInteresting);
-		for (Decision decision : decisions) {
-			if(decision.interesting)System.out.println(""+decision.filepath+": classified as "+decision.classDecision);
-		}
+			double accuracy = 1-((double)numInteresting)/(double)1381;
+			if(accuracy > maxAccuracy)
+			{
+				maxAccuracy = accuracy;
+				maxC = C;
+			}
+			valuesForEachC[index] = accuracy;
+			index++;
+			}
 		
-		
-	}
+		System.out.println("The max accuracy is " + maxAccuracy);
+		System.out.println("Achieved with our little child " + C);
+		for(double value : valuesForEachC)
+		{
+			System.out.println(value);
+		}
+			
+		}
+	
+	
 	//returns a 8x8x8 triple-array histogram, which is NOT NORMALIZED
 	private static double[][][] histogram(String imageName){
 		double[][][] histogram = new double[8][8][8];
@@ -120,10 +144,28 @@ public class placeholder {
 		}catch(IOException e){}
 		return histogram;
 	}
+	
+	private static double[] linearizeHistogram(double[][][] histogram)
+	{
+		double[] result = new double[histogram.length * histogram[0].length * histogram[0][0].length];
+		int index = 0;
+		for(int i = 0;i < histogram.length;i++)
+		{
+			for(int j = 0; j < histogram[0].length;j++)
+			{
+				for(int k = 0;k < histogram[0][0].length;k++)
+				{
+					result[index] = histogram[i][j][k];
+					index++;
+				}
+			}
+		}
+		return result;
+	}
 	//this is how we turn those 32x32 jpegs into vectors
-	private static int[] rgbVector(String imageName)throws Exception{
+	private static double[] rgbVector(String imageName)throws Exception{
 		BufferedImage small = shrinkImage(imageName);
-		int[] smallRGBVector = new int[32*32*3];
+		double[] smallRGBVector = new double[32*32*3];
 		for(int i=0;i<32;i++){
 			for(int j=0;j<32;j++){
 				Color c = new Color(small.getRGB(i,j));
@@ -149,30 +191,6 @@ public class placeholder {
 			return null;
 		}
     }
-	//I'm just using this to test methods. Currently testing only the following:
-	//shrinkImage() creates a 32x32 version of an image
-	//rgbVector() is invertible
-	private static void test() throws Exception{
-		BufferedImage original = shrinkImage("images/img_bags_clutch_"+101+".jpg");
-		int[] v = rgbVector("images/img_bags_clutch_"+101+".jpg");
-		BufferedImage recreation = new BufferedImage(32,32,BufferedImage.TYPE_INT_RGB);
-		for(int i=0;i<32;i++){
-			for(int j=0;j<32;j++){
-				Color c = new Color(v[i*32+j],v[i*32+j+32*32],v[i*32+j+32*32*2]);
-				recreation.setRGB(i, j, c.getRGB());
-			}
-		}
-		for(int i=0;i<32;i++){
-			for(int j=0;j<32;j++){
-				if(original.getRGB(i,j)!=recreation.getRGB(i,j))
-					System.out.println("well would you look at that");
-			}
-		}
-		try{
-			ImageIO.write(original,"jpg",new File("a1.jpg"));
-			ImageIO.write(recreation,"jpg",new File("a2.jpg"));
-		}catch(IOException e){}
-	}
 	
 	//Constructs an svm_problem with the given arguments
 	private static svm_problem constructProblem(int numTrainingItems, int lengthOfItems)
@@ -205,12 +223,21 @@ public class placeholder {
 			                              
 	//fills the arrays of the svm_problem objects to prep them for training
 	private static void fillTrainingArrays(svm_problem Clutch, svm_problem Hobo, svm_problem Flats, svm_problem Pumps, String filePrefix,
-										  int lowerBound, int upperBound)
+										  int lowerBound, int upperBound, boolean isHistogram)
 	{
 		//some images are missing, so we just skip over not found images, we know the image numbers of start and end though
 		for(int i=lowerBound;i<upperBound;i++){ 
 			try{
-			 int [] v=rgbVector("Training/img_" + filePrefix +"_"+i+".jpg");
+			 double[] v;
+			 
+			 if(!isHistogram)
+			 {
+				 v=rgbVector("Training/img_" + filePrefix +"_"+i+".jpg");
+			 }
+			 else
+			 {
+				 v=linearizeHistogram(histogram("Training/img_" + filePrefix +"_"+i+".jpg"));
+			 }
 			 Clutch.y[labelcount] = filePrefix.contains("clutch") ? 1 : 0;
 			 Hobo.y[labelcount] = filePrefix.contains("hobo") ? 1 : 0;
 			 Flats.y[labelcount] = filePrefix.contains("flats") ? 1 : 0;
@@ -232,6 +259,46 @@ public class placeholder {
 				continue;
 			}
 		}
+	}
+	
+	//trains for a particular class
+	private static void evaluateClass(svm_model trainedClutch, svm_model trainedHobo, svm_model trainedFlats, svm_model trainedPumps, String filePrefix, String folder,
+											  int lowerBound, int upperBound, ArrayList<Decision> decisions, boolean isHistogram)
+	{
+		for(int j=lowerBound;j<upperBound;j++){ //looking at testing/clutch stuff first
+			try {
+				double[] testImage;
+				if(!isHistogram)
+				{
+					testImage = rgbVector("Training/img_" + filePrefix + "_"+j+".jpg");
+				}
+				else
+				{
+					testImage = linearizeHistogram(histogram(folder + "/img_" + filePrefix + "_"+j+".jpg"));
+				}
+				svm_node[] testingVector=new svm_node[3072];
+				for(int i=0;i<testImage.length;i++){
+					svm_node toput=new svm_node();
+					toput.index=i;
+					toput.value=testImage[i];
+					testingVector[i]=toput;
+				}
+				double[] clutchProbs=new double[2];
+				double clutchResult=svm.svm_predict_probability(trainedClutch,testingVector,clutchProbs);
+				double[] hoboProbs=new double[2];
+				double hoboResult=svm.svm_predict_probability(trainedHobo,testingVector,hoboProbs);
+				double[] FlatsProbs=new double[2];
+				double FlatsResult=svm.svm_predict_probability(trainedFlats,testingVector,FlatsProbs);
+				double[] PumpsProbs=new double[2];
+				double PumpsResult=svm.svm_predict_probability(trainedPumps,testingVector,PumpsProbs);
+				Decision d = new Decision(clutchProbs,clutchResult,hoboProbs,hoboResult,FlatsProbs,FlatsResult,PumpsProbs,PumpsResult,"Training/img_" + filePrefix + "_"+j+".jpg");
+				d.makeDecision();
+				decisions.add(d);
+				if(d.interesting)numInteresting++;
+			 }catch (Exception e) {
+				continue;
+			}
+			}
 	}
 	
 }
