@@ -97,7 +97,7 @@ public class placeholder {
 			////////////////////NEW CODE BY FRED 11/23 12:39 PM
 			indexG=0;
 			////////////////////
-			for(gamma = 0; gamma <= 2*0.00032;gamma += .0001 )//was 0:1 with gamma+=.1
+			for(gamma = 0; gamma <= 2*0.001953125;gamma += .0005 )//was 0:1 with gamma+=.1
 			{
 			//Build the svm_paramater object
 			svm_parameter param = constructParameter(probability, gamma, nu, C, svm_type, kernel_type, cache_size, eps);
@@ -162,9 +162,9 @@ public class placeholder {
 	
 	
 	//returns a 8x8x8 triple-array histogram
-	private static double[][][] histogram(String imageName){
+	private static double[][][] histogram(String imageName)throws Exception{
 		double[][][] histogram = new double[8][8][8];
-		try{
+		//try{
 			BufferedImage image = ImageIO.read(new File(imageName));
 			double imageSize=image.getHeight()*image.getWidth();
 			for(int i=0;i<image.getWidth();i++){
@@ -183,7 +183,7 @@ public class placeholder {
 				}
 				
 			}
-		}catch(IOException e){}
+		//}catch(IOException e){}
 		return histogram;
 	}
 	
