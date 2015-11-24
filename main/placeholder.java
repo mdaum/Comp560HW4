@@ -3,8 +3,11 @@ package main;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 
 import javax.imageio.ImageIO;
@@ -31,7 +34,7 @@ public class placeholder {
 	
 	public static void main(String[] args){
 		boolean isHistogram = true; //boolean representing whether we are using a histogram or not
-		boolean isLinear = true; //boolean representing whether we are using a linear kernel
+		boolean isLinear = false; //boolean representing whether we are using a linear kernel
 		
 		int numTrainingItems = 1380; //number of training images, old is 2759
 		int vectorLength;
@@ -89,9 +92,12 @@ public class placeholder {
 		int indexG = 0;
 		
 		int k;
-		for(C = .0001;C < 100000;C*=10)
+		for(C = .0001;C <= 100000;C*=1000)//was .0001:100000,C*=10, then .0001:100000,C*=1000
 		{
-			for(gamma = 0; gamma <= 1;gamma += .1 )
+			////////////////////NEW CODE BY FRED 11/23 12:39 PM
+			indexG=0;
+			////////////////////
+			for(gamma = 0; gamma <= 2*0.00032;gamma += .0001 )//was 0:1 with gamma+=.1
 			{
 			//Build the svm_paramater object
 			svm_parameter param = constructParameter(probability, gamma, nu, C, svm_type, kernel_type, cache_size, eps);
@@ -128,6 +134,14 @@ public class placeholder {
 			valuesForEachCAndG[indexC][indexG] = accuracy;
 			indexG++;
 			numInteresting = 0;
+			////////////////////NEW CODE BY FRED 11/23 12:39 PM
+			System.out.println("C:"+indexC+" G:"+indexG);
+			try(PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter("GaussianTuning3.txt", true)))) {
+			    out.println("C:"+indexC+" G:"+indexG+" had accuracy"+accuracy);
+			}catch (IOException e) {
+			    //exception handling left as an exercise for the reader
+			}
+			///////////////////
 			}
 			indexC++;
 		}
@@ -140,6 +154,7 @@ public class placeholder {
 			{
 				System.out.println(valuesForEachCAndG[n][m]);
 			}
+			System.out.println();
 		}
 		
 			
