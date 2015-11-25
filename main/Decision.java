@@ -45,4 +45,20 @@ public class Decision {
 		
 		if(!(filepath.contains(classDecision)))interesting=true;
 	}
+	public String printDecision(){
+		String toprint="";
+		toprint+="FILENAME: "+filepath+"\n";
+		toprint+="ClutchProbs: ["+clutchProbs[0]+","+clutchProbs[1]+"]\n";
+		toprint+="ClutchResult: "+clutchResult+"\n";
+		toprint+="HoboProbs: ["+hoboProbs[0]+","+hoboProbs[1]+"]\n";
+		toprint+="HoboResult: "+hoboResult+"\n";
+		toprint+="FlatsProbs: ["+flatsProbs[0]+","+flatsProbs[1]+"]\n";
+		toprint+="FlatsResult: "+flatsResult+"\n";
+		toprint+="PumpsProbs: ["+pumpsProbs[0]+","+pumpsProbs[1]+"]\n";
+		toprint+="PumpsResult: "+pumpsResult+"\n";
+		toprint+="DECISION: "+classDecision+"\n";
+		toprint+="isInteresting: "+interesting+"\n";
+		return toprint;
+		
+	}
 }
