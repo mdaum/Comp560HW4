@@ -92,13 +92,15 @@ public class placeholder {
 		int indexG = 0;
 		
 		int k;
-		for(C = .0001;C <= 100000;C*=1000)//was .0001:100000,C*=10, then .0001:100000,C*=1000
+		//begin tuning block
+		/*for(C = .0001;C <= 100000;C*=1000)//was .0001:100000,C*=10, then .0001:100000,C*=1000
 		{
 			////////////////////NEW CODE BY FRED 11/23 12:39 PM
 			indexG=0;
 			////////////////////
 			for(gamma = 0; gamma <= 2*0.001953125;gamma += .0005 )//was 0:1 with gamma+=.1
-			{
+			{*/
+		//end tuning block
 			//Build the svm_paramater object
 			svm_parameter param = constructParameter(probability, gamma, nu, C, svm_type, kernel_type, cache_size, eps);
 			
@@ -142,9 +144,12 @@ public class placeholder {
 			    //exception handling left as an exercise for the reader
 			}
 			///////////////////
-			}
+			
+			//begin EOTuning block
+/*			}
 			indexC++;
-		}
+		}*/
+			//end EOTuning block
 		
 		System.out.println("The max accuracy is " + maxAccuracy);
 		System.out.println("Achieved with our little child " + C);
