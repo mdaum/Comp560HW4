@@ -1,0 +1,29 @@
+C:0 G:1 had accuracy0.5119478638667632
+C:0 G:2 had accuracy0.4858797972483707
+C:0 G:3 had accuracy0.3939174511223751
+C:0 G:4 had accuracy0.280955829109341
+C:1 G:1 had accuracy0.5112237509051412
+C:1 G:2 had accuracy0.4858797972483707
+C:1 G:3 had accuracy0.3917451122375091
+C:1 G:4 had accuracy0.30557566980448947
+C:2 G:1 had accuracy0.5119478638667632
+C:2 G:2 had accuracy0.4873280231716147
+C:2 G:3 had accuracy0.38957277335264306
+C:2 G:4 had accuracy0.30485155684286747
+C:3 G:1 had accuracy0.5235336712527154
+C:3 G:2 had accuracy0.4829833454018827
+C:3 G:3 had accuracy0.3931933381607531
+C:3 G:4 had accuracy0.30340333091962346
+C:4 G:1 had accuracy0.5300506879073135
+C:4 G:2 had accuracy0.4793627805937726
+C:4 G:3 had accuracy0.38957277335264306
+C:4 G:4 had accuracy0.28312816799420715
+
+
+for(C = Math.pow(2, -7);C <= Math.pow(2, 1);C*=4)//was .0001:100000,C*=10, then .0001:100000,C*=1000
+		{
+			////////////////////NEW CODE BY FRED 11/23 12:39 PM
+			indexG=0;
+			////////////////////
+			for(gamma = Math.pow(2, 7); gamma <= Math.pow(2, 13);gamma*=4 )//was 0:1 with gamma+=.1
+			{
