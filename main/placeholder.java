@@ -50,9 +50,9 @@ public class placeholder {
 		
 		//Parameters for SVM
 		int probability = 1;
-	    double gamma = 0;
+	    double gamma = Math.pow(2, -5);
 	    double nu = 0.5;
-	    double C = .0001;
+	    double C = Math.pow(2, 7);
 	    int svm_type = svm_parameter.C_SVC;
 	    int kernel_type = (isLinear) ? svm_parameter.LINEAR : svm_parameter.RBF;       
 	    double cache_size = 20000;
@@ -93,13 +93,13 @@ public class placeholder {
 		
 		int k;
 		//begin tuning block
-		/*for(C = .0001;C <= 100000;C*=1000)//was .0001:100000,C*=10, then .0001:100000,C*=1000
+		for(C = Math.pow(2, 7);C <= Math.pow(2, 15);C*=4)//was .0001:100000,C*=10, then .0001:100000,C*=1000
 		{
 			////////////////////NEW CODE BY FRED 11/23 12:39 PM
 			indexG=0;
 			////////////////////
-			for(gamma = 0; gamma <= 2*0.001953125;gamma += .0005 )//was 0:1 with gamma+=.1
-			{*/
+			for(gamma = Math.pow(2, -5); gamma <= Math.pow(2, 3);gamma*=4 )//was 0:1 with gamma+=.1
+			{
 		//end tuning block
 			//Build the svm_paramater object
 			svm_parameter param = constructParameter(probability, gamma, nu, C, svm_type, kernel_type, cache_size, eps);
@@ -138,7 +138,7 @@ public class placeholder {
 			numInteresting = 0;
 			////////////////////NEW CODE BY FRED 11/23 12:39 PM
 			System.out.println("C:"+indexC+" G:"+indexG);
-			try(PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter("GaussianTuning3.txt", true)))) {
+			try(PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter("GaussianTuningHistogram.txt", true)))) {
 			    out.println("C:"+indexC+" G:"+indexG+" had accuracy"+accuracy);
 			}catch (IOException e) {
 			    //exception handling left as an exercise for the reader
@@ -146,9 +146,9 @@ public class placeholder {
 			///////////////////
 			
 			//begin EOTuning block
-/*			}
+			}
 			indexC++;
-		}*/
+		}
 			//end EOTuning block
 		
 		System.out.println("The max accuracy is " + maxAccuracy);
@@ -255,7 +255,7 @@ public class placeholder {
 	{
 		svm_parameter param = new svm_parameter();
 		param.probability = probability;
-	   // param.gamma = gamma;  //right now just default gamma if commented
+	    param.gamma = gamma;  //right now just default gamma if commented
 	    param.nu = nu;
 	    param.C = C;
 	    param.svm_type = svm_type;
@@ -349,14 +349,15 @@ public class placeholder {
 				continue;
 			}
 			}
-		try(PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter("GaussianTuning4.txt", true)))) {
+		//if you want to record entire run uncomment this....
+		/*try(PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter("GaussianTuning4.txt", true)))) {
 		    out.println("NEWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW");
 		    for (Decision decision : decisions) {
 				out.println(decision.printDecision());
 			}
 		}catch (IOException e) {
 		    //exception handling left as an exercise for the reader
-		}
+		}*/
 	}
 	
 }
