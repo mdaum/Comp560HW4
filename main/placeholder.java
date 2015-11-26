@@ -255,7 +255,7 @@ public class placeholder {
 	{
 		svm_parameter param = new svm_parameter();
 		param.probability = probability;
-	    param.gamma = gamma;
+	   // param.gamma = gamma;  //right now just default gamma if commented
 	    param.nu = nu;
 	    param.C = C;
 	    param.svm_type = svm_type;
@@ -313,17 +313,20 @@ public class placeholder {
 											  int lowerBound, int upperBound, ArrayList<Decision> decisions, boolean isHistogram)
 	{
 		for(int j=lowerBound;j<upperBound;j++){ //looking at testing/clutch stuff first
+			svm_node[] testingVector;
 			try {
 				double[] testImage;
 				if(!isHistogram)
 				{
 					testImage = rgbVector("Training/img_" + filePrefix + "_"+j+".jpg");
+					testingVector=new svm_node[3072];
 				}
 				else
 				{
 					testImage = linearizeHistogram(histogram(folder + "/img_" + filePrefix + "_"+j+".jpg"));
+					testingVector=new svm_node[512];
 				}
-				svm_node[] testingVector=new svm_node[3072];
+				
 				for(int i=0;i<testImage.length;i++){
 					svm_node toput=new svm_node();
 					toput.index=i;
@@ -346,6 +349,14 @@ public class placeholder {
 				continue;
 			}
 			}
+		try(PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter("GaussianTuning4.txt", true)))) {
+		    out.println("NEWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW");
+		    for (Decision decision : decisions) {
+				out.println(decision.printDecision());
+			}
+		}catch (IOException e) {
+		    //exception handling left as an exercise for the reader
+		}
 	}
 	
 }
