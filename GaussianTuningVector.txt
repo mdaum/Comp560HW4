@@ -1,0 +1,13 @@
+Note that index of G is one off.  Values are C = [2^13,2^15] and G = [2^-27,2^-25,2^-23,2^-21,2^-19,2^-17]
+C:0 G:1 had accuracy0.8566256335988414
+C:0 G:2 had accuracy0.8674873280231716
+C:0 G:3 had accuracy0.8573497465604634
+C:0 G:4 had accuracy0.8095582910934106
+C:0 G:5 had accuracy0.4120202751629254
+C:0 G:6 had accuracy0.26574945691527874
+C:1 G:1 had accuracy0.8551774076755974
+C:1 G:2 had accuracy0.8667632150615496
+C:1 G:3 had accuracy0.8566256335988414
+C:1 G:4 had accuracy0.8117306299782766
+C:1 G:5 had accuracy0.42070963070238954
+C:1 G:6 had accuracy0.26574945691527874
