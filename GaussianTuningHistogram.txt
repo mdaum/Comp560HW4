@@ -1,0 +1,34 @@
+C:0 G:1 had accuracy0.3997103548153512
+C:0 G:2 had accuracy0.4170890658942795
+C:0 G:3 had accuracy0.4359160028964518
+C:0 G:4 had accuracy0.4793627805937726
+C:0 G:5 had accuracy0.49167270094134685
+C:1 G:1 had accuracy0.40622737146994936
+C:1 G:2 had accuracy0.4141926140477915
+C:1 G:3 had accuracy0.45401882693700213
+C:1 G:4 had accuracy0.4648805213613324
+C:1 G:5 had accuracy0.4706734250543084
+C:2 G:1 had accuracy0.40188269370021723
+C:2 G:2 had accuracy0.43664011585807383
+C:2 G:3 had accuracy0.45981173062997827
+C:2 G:4 had accuracy0.4699493120926864
+C:2 G:5 had accuracy0.4467776973207821
+C:3 G:1 had accuracy0.4170890658942795
+C:3 G:2 had accuracy0.45691527878349025
+C:3 G:3 had accuracy0.45619116582186825
+C:3 G:4 had accuracy0.4482259232440261
+C:3 G:5 had accuracy0.443881245474294
+C:4 G:1 had accuracy0.4511223750905141
+C:4 G:2 had accuracy0.4351918899348298
+C:4 G:3 had accuracy0.445329471397538
+C:4 G:4 had accuracy0.43736422881969583
+C:4 G:5 had accuracy0.4351918899348298
+
+for(C = Math.pow(2, 7);C <= Math.pow(2, 15);C*=4)//was .0001:100000,C*=10, then .0001:100000,C*=1000
+		{
+			////////////////////NEW CODE BY FRED 11/23 12:39 PM
+			indexG=0;
+			////////////////////
+			for(gamma = Math.pow(2, -5); gamma <= Math.pow(2, 3);gamma*=4 )//was 0:1 with gamma+=.1
+			{
+
