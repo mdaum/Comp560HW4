@@ -25,8 +25,8 @@ public class placeholder {
 	static int numInteresting=0;
 	
 	public static void main(String[] args){
-		boolean isHistogram = false; //boolean representing whether we are using a histogram or not
-		boolean isLinear = true; //boolean representing whether we are using a linear kernel
+		boolean isHistogram = true; //boolean representing whether we are using a histogram or not
+		boolean isLinear = false; //boolean representing whether we are using a linear kernel
 		
 		int numTrainingItems = 2759; //number of training images, old is 2759
 		int vectorLength;
@@ -288,7 +288,7 @@ public class placeholder {
 			}
 			}
 		//if you want to record entire run uncomment this....
-		try(PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter("Test_Results_Linear_Tiny_Image.txt", true)))) {
+		try(PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter("Test_Results_RBF_Histogram.txt", true)))) {
 		    out.println("Start of New Class Evaluation");
 		    for (Decision decision : decisions) {
 				out.println(decision.printDecision());
