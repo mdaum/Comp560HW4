@@ -25,8 +25,8 @@ public class placeholder {
 	static int numInteresting=0;
 	
 	public static void main(String[] args){
-		boolean isHistogram = true; //boolean representing whether we are using a histogram or not
-		boolean isLinear = false; //boolean representing whether we are using a linear kernel
+		boolean isHistogram = (Integer.parseInt(args[0])==1)? true:false; //boolean representing whether we are using a histogram or not
+		boolean isLinear = (Integer.parseInt(args[1])==1)? true:false; //boolean representing whether we are using a linear kernel
 		
 		int numTrainingItems = 2759; //number of training images, old is 2759
 		int vectorLength;
@@ -84,20 +84,98 @@ public class placeholder {
 			//Test the model for each class
 			ArrayList<Decision>decisions=new ArrayList<Decision>(); 
 			//1000,782,996,745
-			evaluateClass(trainedClutch, trainedHobo, trainedFlats, trainedPumps, "bags_clutch", "Testing", 2, 1000, decisions, isHistogram);
-			evaluateClass(trainedClutch, trainedHobo, trainedFlats, trainedPumps, "bags_hobo", "Testing", 2, 1000, decisions, isHistogram); //will just have lots of continues here
-			evaluateClass(trainedClutch, trainedHobo, trainedFlats, trainedPumps, "womens_flats", "Testing", 2, 1000, decisions, isHistogram); 
-			evaluateClass(trainedClutch, trainedHobo, trainedFlats, trainedPumps, "womens_pumps", "Testing", 2, 1000, decisions, isHistogram);
+			evaluateClass(trainedClutch, trainedHobo, trainedFlats, trainedPumps, "bags_clutch", "Testing", 2, 1000, decisions, isHistogram,args);
+			evaluateClass(trainedClutch, trainedHobo, trainedFlats, trainedPumps, "bags_hobo", "Testing", 2, 1000, decisions, isHistogram,args); //will just have lots of continues here
+			evaluateClass(trainedClutch, trainedHobo, trainedFlats, trainedPumps, "womens_flats", "Testing", 2, 1000, decisions, isHistogram,args); 
+			evaluateClass(trainedClutch, trainedHobo, trainedFlats, trainedPumps, "womens_pumps", "Testing", 2, 1000, decisions, isHistogram,args);
 			System.out.println("Done with Testing: num interesting="+numInteresting);
+			int clutchWrong=0;
+			int hoboWrong=0;
+			int flatsWrong=0;
+			int pumpsWrong=0;
+			int[][]confusionMatrix=new int[4][4];
 			for (Decision decision : decisions) {
-				if(decision.interesting)System.out.println(""+decision.filepath+": classified as "+decision.classDecision);
+				if(decision.interesting){
+					System.out.println(""+decision.filepath+": classified as "+decision.classDecision);
+					if(decision.originalClass.equals("clutch")){
+						clutchWrong++;
+						if(decision.classDecision.equals("hobo"))confusionMatrix[0][1]++;
+						else if(decision.classDecision.equals("flats"))confusionMatrix[0][2]++;
+						else confusionMatrix[0][3]++;
+					}
+					if(decision.originalClass.equals("hobo")){
+						hoboWrong++;
+						if(decision.classDecision.equals("clutch"))confusionMatrix[1][0]++;
+						else if(decision.classDecision.equals("flats"))confusionMatrix[1][2]++;
+						else confusionMatrix[1][3]++;
+					}
+					if(decision.originalClass.equals("flats")){
+						flatsWrong++;
+						if(decision.classDecision.equals("clutch"))confusionMatrix[2][0]++;
+						else if(decision.classDecision.equals("hobo"))confusionMatrix[2][1]++;
+						else confusionMatrix[2][3]++;
+					}
+					if(decision.originalClass.equals("pumps")){
+						pumpsWrong++;
+						if(decision.classDecision.equals("clutch"))confusionMatrix[3][0]++;
+						else if(decision.classDecision.equals("hobo"))confusionMatrix[3][1]++;
+						else confusionMatrix[3][2]++;
+					}
+				}
+				else if(decision.classDecision.equals("clutch"))confusionMatrix[0][0]++;
+				else if(decision.classDecision.equals("hobo"))confusionMatrix[1][1]++;
+				else if(decision.classDecision.equals("flats"))confusionMatrix[2][2]++;
+				else confusionMatrix[3][3]++;	
 			}
-			double accuracy = 1-((double)numInteresting)/(double)1197; //Denominator is number of "testing" documents
+			double clutchAccuracy=1-((double)clutchWrong)/(double)(300);
+			double hoboAccuracy=1-((double)hoboWrong)/(double)(299);
+			double flatsAccuracy=1-((double)flatsWrong)/(double)(299);
+			double pumpsAccuracy=1-((double)pumpsWrong)/(double)(299);
+			double overallAccuracy = 1-((double)numInteresting)/(double)1197; //Denominator is number of "testing" documents
 			System.out.println("Testing docs looked at: "+decisions.size());
-			System.out.println("accuracy: "+accuracy);
+			System.out.println("# Clutch looked at: 300");
+			System.out.println("# Hobo looked at: 299");
+			System.out.println("# Flats looked at: 299");
+			System.out.println("# Pumps looked at: 299");
+			System.out.println("clutchWrong: "+clutchWrong);
+			System.out.println("hoboWrong: "+hoboWrong);
+			System.out.println("flatsWrong: "+flatsWrong);
+			System.out.println("pumpsWrong: "+pumpsWrong);
+			System.out.println("Clutch accuracy: "+clutchAccuracy);
+			System.out.println("Hobo accuracy: "+hoboAccuracy);
+			System.out.println("Flats accuracy: "+flatsAccuracy);
+			System.out.println("Pumps accuracy: "+pumpsAccuracy);
+			System.out.println("Overall accuracy: "+overallAccuracy);
+			printMatrix(confusionMatrix);
+			System.out.println("done");
+			
 			
 		}
-	
+	private static void printMatrix(int[][] confusionMatrix){
+		System.out.println("Confusion Matrix");
+		System.out.println();
+		System.out.println("  C   H   F   P");
+		String cLine="C";
+			for (int i : confusionMatrix[0]) {
+				cLine+=" "+i;
+			}
+		System.out.println(cLine);
+		String hLine="H";
+		for (int i : confusionMatrix[1]) {
+			hLine+=" "+i;
+		}
+		System.out.println(hLine);
+		String fLine="F";
+		for (int i : confusionMatrix[2]) {
+			fLine+=" "+i;
+		}
+		System.out.println(fLine);
+		String pLine="P";
+		for (int i : confusionMatrix[3]) {
+			pLine+=" "+i;
+		}
+	System.out.println(pLine);
+	}
 	
 	//returns a 8x8x8 triple-array histogram
 	private static double[][][] histogram(String imageName)throws Exception{
@@ -248,7 +326,7 @@ public class placeholder {
 	
 	//trains for a particular class
 	private static void evaluateClass(svm_model trainedClutch, svm_model trainedHobo, svm_model trainedFlats, svm_model trainedPumps, String filePrefix, String folder,
-											  int lowerBound, int upperBound, ArrayList<Decision> decisions, boolean isHistogram)
+											  int lowerBound, int upperBound, ArrayList<Decision> decisions, boolean isHistogram,String[]args)
 	{
 		for(int j=lowerBound;j<upperBound;j++){ //looking at testing/clutch stuff first
 			svm_node[] testingVector;
@@ -287,14 +365,16 @@ public class placeholder {
 				continue;
 			}
 			}
+		if(Integer.parseInt(args[2])==1){
 		//if you want to record entire run uncomment this....
-		try(PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter("Test_Results_RBF_Histogram.txt", true)))) {
+		try(PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(args[3], true)))) {
 		    out.println("Start of New Class Evaluation");
 		    for (Decision decision : decisions) {
 				out.println(decision.printDecision());
 			}
 		}catch (IOException e) {
 		    //exception handling left as an exercise for the reader
+		}
 		}
 	}
 	

@@ -12,6 +12,7 @@ public class Decision {
 	double[] pumpsProbs;
 	double pumpsResult;
 	boolean interesting;
+	String originalClass;
 
 	public Decision(double[] clutchProbs, double clutchResult,
 			double[] hoboProbs, double hoboResult, double[] flatsProbs,
@@ -44,6 +45,10 @@ public class Decision {
 		if(max2>max1)classDecision=contender;
 		
 		if(!(filepath.contains(classDecision)))interesting=true;
+		if(filepath.contains("clutch"))originalClass="clutch";
+		if(filepath.contains("hobo"))originalClass="hobo";
+		if(filepath.contains("flats"))originalClass="flats";
+		if(filepath.contains("pumps"))originalClass="pumps";
 	}
 	public String printDecision(){
 		String toprint="";
